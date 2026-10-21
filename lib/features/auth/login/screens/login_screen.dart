@@ -1,6 +1,6 @@
 
+import 'package:ecommerce_app_huma_volve/services/auth_service.dart';
 import 'package:flutter/material.dart';
-
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../../../../core/theme.dart';
@@ -108,13 +108,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 32),
                 PrimaryButton(
                   text: 'Login',
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => MainNavigationScreen(),
-                        ),
+                      final authService = AuthService();
+                      bool isSuccess = await authService.login(
+                        email: emailController.text,
+                        password: passwordController.text,
                       );
+
+                      if (isSuccess) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => MainNavigationScreen(),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('فشل تسجيل الدخول، تأكد من بياناتك')),
+                        );
+                      }
                     }
                   },
                 ),
