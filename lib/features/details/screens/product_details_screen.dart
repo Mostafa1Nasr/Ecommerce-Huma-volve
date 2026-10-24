@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../core/dummy_data.dart';
+import '../../home/models/product_model.dart';
 import '../../../core/theme.dart';
 import '../widgets/color_selector.dart';
 import '../widgets/size_selector.dart';
 import '../../../core/widgets/primary_button.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
-  final Product product;
+  final ProductModel product;
 
   const ProductDetailsScreen({super.key, required this.product});
 
@@ -18,11 +18,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   late Color _selectedColor;
   late String _selectedSize;
 
+  // داتا ثابتة لأن الـ API مش بيرجع ألوان ومقاسات
+  final List<Color> _availableColors = const [Colors.black, Colors.blue, Colors.red];
+  final List<String> _availableSizes = const ['S', 'M', 'L', 'XL'];
+
   @override
   void initState() {
     super.initState();
-    _selectedColor = widget.product.colors.first;
-    _selectedSize = widget.product.sizes.first;
+    _selectedColor = _availableColors.first;
+    _selectedSize = _availableSizes.first;
   }
 
   @override
@@ -64,8 +68,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               background: Hero(
                 tag: 'product-${widget.product.id}',
                 child: Image.network(
-                  widget.product.imageUrl,
+                  widget.product.images.isNotEmpty ? widget.product.images[0] : 'https://via.placeholder.com/400',
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 50),
                 ),
               ),
             ),
@@ -88,7 +93,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            widget.product.name,
+                            widget.product.title,
                             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                               fontSize: 28,
                               height: 1.2,
@@ -97,7 +102,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ),
                         const SizedBox(width: 16),
                         Text(
-                          '\$${widget.product.price.toStringAsFixed(2)}',
+                          '\$${widget.product.price}',
                           style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                             color: AppTheme.primary,
                             fontSize: 24,
@@ -129,7 +134,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                     const SizedBox(height: 12),
                     ColorSelector(
-                      colors: widget.product.colors,
+                      colors: _availableColors,
                       selectedColor: _selectedColor,
                       onColorSelected: (color) {
                         setState(() {
@@ -146,7 +151,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                     const SizedBox(height: 12),
                     SizeSelector(
-                      sizes: widget.product.sizes,
+                      sizes: _availableSizes,
                       selectedSize: _selectedSize,
                       onSizeSelected: (size) {
                         setState(() {
@@ -160,7 +165,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('${widget.product.name} added to cart'),
+                            content: Text('${widget.product.title} added to cart'),
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
